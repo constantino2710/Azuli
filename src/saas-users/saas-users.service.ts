@@ -5,6 +5,7 @@ import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import * as schema from '../drizzle/schema';
 import { CreateSaasUserDto } from './dto/create-saas-user.dto';
 import * as bcrypt from 'bcrypt';
+import { eq } from 'drizzle-orm';
 
 @Injectable()
 export class SaasUsersService {
@@ -16,7 +17,6 @@ export class SaasUsersService {
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(data.password, salt);
 
-    // Insere na tabela saasUsers definida no teu schema.ts
     const result = await this.db
       .insert(schema.saasUsers)
       .values({
@@ -26,8 +26,17 @@ export class SaasUsersService {
       })
       .returning();
 
-    // Remove o hash da resposta por segurança
     const { passwordHash: _, ...userWithoutPassword } = result[0];
     return userWithoutPassword;
+  }
+
+  async findByEmail(email: string) {
+    const users = await this.db
+      .select()
+      .from(schema.saasUsers)
+      .where(eq(schema.saasUsers.email, email))
+      .limit(1);
+
+    return users[0];
   }
 }

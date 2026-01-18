@@ -5,5 +5,6 @@ import { SaasUsersController } from './saas-users.controller';
 @Module({
   controllers: [SaasUsersController],
   providers: [SaasUsersService],
+  exports: [SaasUsersService],
 })
 export class SaasUsersModule {}
